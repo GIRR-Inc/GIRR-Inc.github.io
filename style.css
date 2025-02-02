@@ -1,4 +1,5 @@
 /*
+git push https://GIRR-Inc@github.com/GIRR-Inc/GIRR-Inc.github.io.git master
 Theme Name:Moschino
 Theme URI:https://www.wowthemes.net/marketplace/free-html-template-moschino/
 Author:WowThemes.net
@@ -1995,6 +1996,7 @@ ul.shortcode-archive li {
 }
 .portfoliogrid article.hentry {
 	margin-bottom:30px;
+	width: 326px;
 }
 a.portfoliotype {
 	text-decoration:none;
