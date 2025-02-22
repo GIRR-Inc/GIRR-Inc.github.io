@@ -1,158 +1,358 @@
 <!DOCTYPE html>
-<html lang="en-US">
+<html lang="ko">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>GIRR Inc</title>
-<link rel='stylesheet' href='css/woocommerce-layout.css' type='text/css' media='all'/>
-<link rel='stylesheet' href='css/woocommerce-smallscreen.css' type='text/css' media='only screen and (max-width: 768px)'/>
-<link rel='stylesheet' href='css/woocommerce.css' type='text/css' media='all'/>
-<link rel='stylesheet' href='css/font-awesome.min.css' type='text/css' media='all'/>
-<link rel='stylesheet' href='style.css' type='text/css' media='all'/>
-<link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Oswald:400,500,700%7CRoboto:400,500,700%7CHerr+Von+Muellerhoff:400,500,700%7CQuattrocento+Sans:400,500,700' type='text/css' media='all'/>
-<link rel='stylesheet' href='css/easy-responsive-shortcodes.css' type='text/css' media='all'/>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>채팅 보기</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Pretendard', sans-serif;
+            background-color: #f3f4f6;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 10px;
+            color: gray;
+        }
+
+        /* 버튼 고정 위치 */
+        /* 버튼 중앙 정렬 및 고정 */
+        .macro-buttons {
+            position: sticky;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.9);
+            border-bottom: 1px solid #ddd;
+            max-width: 100%;
+            /* 모바일에서도 가득 차게 */
+            width: 100%;
+            flex-wrap: wrap;
+            /* 버튼이 많아지면 줄바꿈 */
+        }
+
+        .macro-button {
+            background: rgba(59, 130, 246, 0.9);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .macro-button:hover {
+            background: rgba(37, 99, 235, 1);
+        }
+
+        #chat-container {
+            max-height: 750px;
+            overflow-y: auto;
+            width: 100%;
+            scroll-behavior: smooth;
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-color: rgba(255, 255, 255, 0.85);
+            border-radius: 10px;
+            backdrop-filter: blur(3px);
+            position: relative;
+            max-width: 420px;
+        }
+
+        .chat-bubble {
+            padding: 12px;
+            border-radius: 12px;
+            opacity: 0.85;
+        }
+
+        .chat-user {
+            background-color: rgba(59, 130, 246, 0.75);
+            color: white;
+        }
+
+        .chat-other {
+            background-color: rgba(236, 72, 153, 0.75);
+            color: white;
+        }
+
+        /* 메시지 인덱스 스타일 */
+        .message-index {
+            font-size: 12px;
+            color: rgb(0, 0, 0);
+            margin-left: 8px;
+        }
+
+        @media (max-width: 640px) {
+            .macro-buttons {
+                max-width: 100%;
+                /* 모바일에서 가로폭 맞추기 */
+                justify-content: center;
+            }
+
+            #chat-container {
+                max-height: 90vh;
+                border-radius: 0;
+                box-shadow: none;
+            }
+
+            .message {
+                max-width: 80%;
+            }
+        }
+    </style>
 </head>
-<body class="home page page-template page-template-template-portfolio page-template-template-portfolio-php">
-<div id="page">
-	<div class="container">
-		<header id="masthead" class="site-header">
-		<div class="site-branding">
-			<div class="site-title" href="index.html" rel="home"><img src="img/LOGO_Org.jpg"></div>
-			<h1 class="site-description"><a href="index.html" rel="home">g i r r</a></h1>
-		</div>
-		<nav id="site-navigation" class="main-navigation">
-		<button class="menu-toggle">Menu</button>
-		<a class="skip-link screen-reader-text" href="#content">Skip to content</a>
-		<div class="menu-menu-1-container">
-			<ul id="menu-menu-1" class="menu">
-				<li><a href="index.html">Home</a></li>
-				<li><a href="about.html">About</a></li>
-				<!-- <li><a href="shop.html">Shop</a></li> -->
-				<!-- <li><a href="blog.html">Blog</a></li> -->
-				<!-- <li><a href="elements.html">Elements</a></li> -->
-				<!-- <li><a href="#">Pages</a> -->
-				<!-- <ul class="sub-menu">
-					<li><a href="portfolio-item.html">Portfolio Item</a></li>
-					<li><a href="blog-single.html">Blog Article</a></li>
-					<li><a href="shop-single.html">Shop Item</a></li>
-					<li><a href="portfolio-category.html">Portfolio Category</a></li>
-				</ul>
-				</li> -->
-				<!-- <li><a href="contact.html">Contact</a></li> -->
-			</ul>
-		</div>
-		</nav>
-		</header>
-		<!-- #masthead -->
-		<div id="content" class="site-content">
-			<div id="primary" class="content-area column full">
-				<main id="main" class="site-main">
-				<div class="grid portfoliogrid">
-				
-					<article class="hentry">
-					<header class="entry-header">
-					<div class="entry-thumbnail">
-						<a a href=""><img src="img/Project1.jpg" class="attachment-post-thumbnail size-post-thumbnail wp-post-image" alt="p1"/></a>
-					</div>
-					<h2 class="entry-title"><a href="" rel="bookmark">(24y) 쉐어존</a></h2>
-					<a class='portfoliotype' a href="">WordPress</a>
-					<a class='portfoliotype' a href="">PHP</a>
-					<a class='portfoliotype' a href="">JavaScript</a>
-					</header>
-					</article>
-					
-					<article class="hentry">
-					<header class="entry-header">
-					<div class="entry-thumbnail">
-						<a a href=""><img src="img/Project2.jpg" class="attachment-post-thumbnail size-post-thumbnail wp-post-image" alt="p1"/></a>
-					</div>
-					<h2 class="entry-title"><a a href="" rel="bookmark">(24y) LIFE WINNER</a></h2>
-					<a class='portfoliotype' href="">WordPress</a>
-					<a class='portfoliotype' href="">AWS</a>
-					<a class='portfoliotype' href="">데이터 이전</a>
-					</header>
-					</article>
-					
-					<article class="hentry">
-					<header class="entry-header">
-					<div class="entry-thumbnail">
-						<a href=""><img src="img/coming_soon.jpg" class="attachment-post-thumbnail size-post-thumbnail wp-post-image" alt="p1"/></a>
-					</div>
-					<h2 class="entry-title"><a href="" rel="bookmark">준비중입니다.</a></h2>
-					<a class='portfoliotype' href=""></a>
-					<a class='portfoliotype' href=""></a>
-					<a class='portfoliotype' href=""></a>
-					</header>
-					</article>
-					
-					<article class="hentry">
-						<header class="entry-header">
-						<div class="entry-thumbnail">
-							<a href=""><img src="img/coming_soon.jpg" class="attachment-post-thumbnail size-post-thumbnail wp-post-image" alt="p1"/></a>
-						</div>
-						<h2 class="entry-title"><a href="" rel="bookmark">준비중입니다.</a></h2>
-						<a class='portfoliotype' href=""></a>
-						<a class='portfoliotype' href=""></a>
-						<a class='portfoliotype' href=""></a>
-						</header>
-						</article>
-					
-						<article class="hentry">
-							<header class="entry-header">
-							<div class="entry-thumbnail">
-								<a href=""><img src="img/coming_soon.jpg" class="attachment-post-thumbnail size-post-thumbnail wp-post-image" alt="p1"/></a>
-							</div>
-							<h2 class="entry-title"><a href="" rel="bookmark">준비중입니다.</a></h2>
-							<a class='portfoliotype' href=""></a>
-							<a class='portfoliotype' href=""></a>
-							<a class='portfoliotype' href=""></a>
-							</header>
-							</article>
-					
-							<article class="hentry">
-								<header class="entry-header">
-								<div class="entry-thumbnail">
-									<a href=""><img src="img/coming_soon.jpg" class="attachment-post-thumbnail size-post-thumbnail wp-post-image" alt="p1"/></a>
-								</div>
-								<h2 class="entry-title"><a href="" rel="bookmark">준비중입니다.</a></h2>
-								<a class='portfoliotype' href=""></a>
-								<a class='portfoliotype' href=""></a>
-								<a class='portfoliotype' href=""></a>
-								</header>
-								</article>
-					
-				</div>
-				<!-- .grid -->
-				
-				<nav class="pagination">
-				<span class="page-numbers current">1</span>
-				<a class="page-numbers" href="#">2</a>
-				<a class="next page-numbers" href="#">Next »</a>
-				</nav>
-				<br/>
-				
-				</main>
-				<!-- #main -->
-			</div>
-			<!-- #primary -->
-		</div>
-		<!-- #content -->
-	</div>
-	<!-- .container -->
-	<footer id="colophon" class="site-footer">
-	<div class="container">
-		<div class="site-info">
-			<h1 style="font-family: 'Herr Von Muellerhoff';color: #ccc;font-weight:300;text-align: center;margin-bottom:0;margin-top:0;line-height:1.4;font-size: 46px;">G I R R</h1>
-			 <a target="blank" href="https://www.wowthemes.net/">&copy; GIRR .Inc</a>
-		</div>
-	</div>	
-	</footer>
-	<a href="#top" class="smoothup" title="Back to top"><span class="genericon genericon-collapse"></span></a>
-</div>
-<!-- #page -->
-<script src='js/jquery.js'></script>
-<script src='js/plugins.js'></script>
-<script src='js/scripts.js'></script>
-<script src='js/masonry.pkgd.min.js'></script>
+
+<body class="bg-gray-100 flex flex-col items-center min-h-screen px-2">
+    <!-- 오디오 플레이어 (자동 재생 + 반복) -->
+    <audio id="bg-music" autoplay loop>
+        <source src="music/audio.m4a" type="audio/mp3">
+        브라우저가 오디오 태그를 지원하지 않습니다.
+    </audio>
+    
+    <!-- 음악 컨트롤 버튼 -->
+    <div class="fixed bottom-5 right-5 p-3 bg-blue-500 text-white rounded-full cursor-pointer" id="music-toggle">
+        🎵 음악 끄기
+    </div>
+    
+    <!-- <div class="macro-buttons">
+        <button class="macro-button" onclick="scrollToMessage(0)">처음으로</button>
+        <button class="macro-button" onclick="scrollToMessage(10)">10번째 메시지</button>
+        <button class="macro-button" onclick="scrollToMessage(30)">30번째 메시지</button>
+        <button class="macro-button" onclick="scrollToMessage(4000)">50번째 메시지</button>
+        <button class="macro-button" onclick="scrollToMessage(-1)">마지막으로</button>
+    </div> -->
+    <!-- 채팅 박스 -->
+    <div class="w-full max-w-md bg-white shadow-lg rounded-lg p-4 relative" id="chat-container">
+        <div id="background-fade"></div>
+        <div id="messages"></div>
+        <div class="loading" id="loading">로딩 중...</div>
+    </div>
+
+<!-- GSAP 라이브러리 추가 -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+   
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const bgMusic = document.getElementById("bg-music");
+        const musicToggle = document.getElementById("music-toggle");
+        const chatContainer = document.getElementById("chat-container"); // 채팅창 요소
+        let musicPlayed = false; // 음악이 실행되었는지 확인하는 변수
+
+        async function playMusic() {
+            try {
+                await bgMusic.play();
+                bgMusic.muted = false; // 🔥 소리 켜기
+                musicToggle.textContent = "🎵 음악 끄기";
+                musicPlayed = true; // 한 번 실행되면 다시 실행되지 않도록 설정
+                console.log("🎵 음악 자동 재생 성공!");
+            } catch (error) {
+                console.error("⛔ 음악 자동 재생 차단됨. 반드시 사용자 인터랙션이 필요합니다.");
+            }
+        }
+
+        // 📌 **사용자의 모든 인터랙션(클릭, 터치, 키 입력, 스크롤)을 감지하여 자동 재생**
+        function handleUserInteraction() {
+            if (!musicPlayed) {
+                playMusic();
+                removeInteractionListeners(); // 🎯 한 번 실행되면 이벤트 제거
+            }
+        }
+
+        function removeInteractionListeners() {
+            chatContainer.removeEventListener("scroll", handleUserInteraction);
+            document.removeEventListener("click", handleUserInteraction);
+            document.removeEventListener("keydown", handleUserInteraction);
+            document.removeEventListener("touchstart", handleUserInteraction);
+        }
+
+        // 📌 **스크롤, 클릭, 키 입력, 터치 중 하나라도 감지되면 자동 재생**
+        chatContainer.addEventListener("scroll", () => {
+            if (chatContainer.scrollTop > 50) { // 너무 민감하지 않게 설정
+                handleUserInteraction();
+            }
+        });
+
+        document.addEventListener("click", handleUserInteraction);
+        document.addEventListener("keydown", handleUserInteraction);
+        document.addEventListener("touchstart", handleUserInteraction);
+
+        // 🎵 음악 ON/OFF 버튼 기능
+        musicToggle.addEventListener("click", function () {
+            if (bgMusic.paused) {
+                playMusic();
+            } else {
+                bgMusic.pause();
+                musicToggle.textContent = "🔇 음악 켜기";
+            }
+        });
+    });
+</script>
+<script>
+        const chatContainer = document.getElementById("chat-container");
+        const messageContainer = document.getElementById("messages");
+        const loadingIndicator = document.getElementById("loading");
+        const backgroundFade = document.getElementById("background-fade");
+
+        let chatData = [];
+        let currentIndex = 0;
+        const batchSize = 20;
+        let messageElements = []; // 채팅 메시지 저장
+
+
+        
+    // 사용할 배경 이미지 리스트 (image/1.jpg ~ image/30.jpg)
+    const backgroundImages = Array.from({ length: 30 }, (_, i) => `image/${i + 1}.jpg`);
+    let currentImageIndex = 0;
+
+    // 초기에 1번 이미지 세팅
+    function setDefaultBackground() {
+        chatContainer.style.backgroundImage = `url('${backgroundImages[0]}')`; // 기본 배경 1.jpg
+        backgroundFade.style.backgroundImage = `url('${backgroundImages[0]}')`; // 초기 배경도 동일하게 설정
+        console.log("초기 배경 이미지 설정:", backgroundImages[0]); // 디버그 로그
+    }
+
+    // 일정한 시간 간격으로 배경 이미지 변경 (GSAP 애니메이션 적용)
+    function changeBackgroundImage() {
+        currentImageIndex = (currentImageIndex + 1) % backgroundImages.length;
+        const newImage = backgroundImages[currentImageIndex];
+
+        console.log("변경할 배경 이미지:", newImage); // 적용 여부 확인 로그
+
+        if (!backgroundFade) {
+            console.error("⚠️ `backgroundFade` 요소를 찾을 수 없습니다. HTML 구조를 확인하세요.");
+            return;
+        }
+
+        // 1. 새로운 이미지 설정 (fade-in 적용할 backgroundFade에 먼저 적용)
+        backgroundFade.style.backgroundImage = `url('${newImage}')`;
+        backgroundFade.style.zIndex = 2; // fade-in을 위에 위치시켜 전환 효과 적용
+
+        // 2. GSAP 애니메이션 적용 (부드러운 배경 변경)
+        gsap.fromTo(backgroundFade, 
+            { opacity: 0 }, // 기존에는 투명
+            { opacity: 1, duration: 1.5, ease: "power2.out", onComplete: () => {
+                // 3. chatContainer에 새로운 배경 설정
+                chatContainer.style.backgroundImage = `url('${newImage}')`;
+                backgroundFade.style.zIndex = 1; // 다시 낮춰서 새로운 배경 적용
+
+                console.log("배경 이미지 적용 완료:", newImage); // 확인 로그
+
+                // 4. 다시 fade-out 처리
+                gsap.to(backgroundFade, { opacity: 0, duration: 1.5, ease: "power2.in" });
+            }
+        });
+    }
+
+    // 페이지가 로드될 때 1번 이미지를 기본 배경으로 설정
+    setDefaultBackground();
+
+    // 일정 간격(5초)마다 배경 변경 (GSAP 애니메이션 적용)
+    setTimeout(() => {
+        setInterval(changeBackgroundImage, 5000);
+    }, 5000); // 5초 뒤부터 배경 변경 시작
+
+        // 채팅 위치로 이동하는 함수
+        // 채팅 위치로 이동하는 함수
+        function scrollToMessage(targetIndex) {
+            if (targetIndex === -1) {
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+                return;
+            }
+
+            function checkAndScroll() {
+                // 메시지 요소 중에서 정확한 index를 가진 요소를 찾음
+                const targetMessage = document.querySelector(`.message-index[data-index="${targetIndex}"]`);
+
+                if (targetMessage) {
+                    // 해당 메시지가 존재하면 스크롤 이동
+                    targetMessage.closest(".message-item").scrollIntoView({ behavior: "smooth", block: "start" });
+                } else {
+                    // 메시지가 아직 로드되지 않았다면 스크롤을 내려서 계속 불러옴
+                    chatContainer.scrollTop = chatContainer.scrollHeight;
+                    setTimeout(checkAndScroll, 10); // 0.5초 후 다시 확인
+                }
+            }
+
+            checkAndScroll();
+        }
+
+        // 로컬 파일에서 채팅 데이터 불러오기
+        async function loadChatData() {
+            try {
+                const response = await fetch("text.txt"); // 로컬 파일에서 가져오기
+                const text = await response.text();
+                chatData = text.trim().split("\n");
+                renderNextBatch();
+            } catch (error) {
+                console.error("채팅 데이터를 불러오는 중 오류 발생:", error);
+            }
+        }
+
+        // 채팅 데이터 일부씩 렌더링
+        // 채팅 데이터 일부씩 렌더링
+        function renderNextBatch() {
+            const messagePattern = /\[(.*?)\] \[(.*?)\] (.*)/;
+            const datePattern = /-+ (.*?) -+/;
+
+            for (let i = 0; i < batchSize; i++) {
+                if (currentIndex >= chatData.length) {
+                    loadingIndicator.style.display = "none";
+                    return;
+                }
+
+                const line = chatData[currentIndex++];
+                if (datePattern.test(line)) {
+                    const dateMatch = line.match(datePattern);
+                    if (dateMatch) {
+                        const dateElement = document.createElement("div");
+                        dateElement.className = "text-center text-gray-500 text-sm font-bold my-6";
+                        dateElement.textContent = dateMatch[1];
+                        messageContainer.appendChild(dateElement);
+                    }
+                } else {
+                    const match = line.match(messagePattern);
+                    if (!match) continue;
+
+                    const [, sender, time, text] = match;
+                    const isUser = sender === "최다훈";
+
+                    const messageElement = document.createElement("div");
+                    messageElement.className = `message-item flex ${isUser ? 'justify-start' : 'justify-end'} mb-4`;
+                    messageElement.innerHTML = `
+                <div class="max-w-xs p-3 rounded-lg chat-bubble ${isUser ? 'chat-user' : 'chat-other'} shadow-md">
+                    <p class="text-xs font-bold">${sender} • ${time} <span class="message-index" data-index="${currentIndex}">#${currentIndex}</span></p>
+                    <p class="mt-1">${text}</p>
+                </div>
+            `;
+                    messageContainer.appendChild(messageElement);
+                    messageElements.push(messageElement); // 메시지 배열에 추가
+                }
+            }
+        }
+
+        // 스크롤 이벤트 감지 -> 배경 변경
+        chatContainer.addEventListener("scroll", () => {
+            if (chatContainer.scrollTop + chatContainer.clientHeight >= chatContainer.scrollHeight - 50) {
+                renderNextBatch();
+                changeBackgroundImage(); // 채팅 박스 배경 이미지 변경 (부드러운 효과)
+            }
+        });
+
+        // 초기 데이터 로드
+        loadChatData();
+    </script>
+
 </body>
+
 </html>
