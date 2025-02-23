@@ -228,7 +228,7 @@
             img.src = newImage;
             img.onload = () => {
                 chatContainer.style.transition = "opacity 1s ease-in-out"; // ✅ 페이드 효과를 더 부드럽게 조정
-                chatContainer.style.opacity = 0.5; // 페이드아웃
+                chatContainer.style.opacity = 0.8; // 페이드아웃
         
                 setTimeout(() => {
                     chatContainer.style.backgroundImage = `url('${newImage}')`;
