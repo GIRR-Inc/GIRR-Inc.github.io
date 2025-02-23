@@ -101,7 +101,7 @@
             }
 
             #chat-container {
-                max-height: 90vh;
+                max-height: 85vh;
                 border-radius: 0;
                 box-shadow: none;
             }
@@ -125,13 +125,12 @@
         🎵 음악 끄기
     </div>
     
-    <!-- <div class="macro-buttons">
-        <button class="macro-button" onclick="scrollToMessage(0)">처음으로</button>
-        <button class="macro-button" onclick="scrollToMessage(10)">10번째 메시지</button>
-        <button class="macro-button" onclick="scrollToMessage(30)">30번째 메시지</button>
-        <button class="macro-button" onclick="scrollToMessage(4000)">50번째 메시지</button>
-        <button class="macro-button" onclick="scrollToMessage(-1)">마지막으로</button>
-    </div> -->
+    <div class="macro-buttons">
+        <button class="macro-button" onclick="scrollToMessage(1)">처음으로</button>
+        <button class="macro-button" onclick="scrollToMessage(7549)">처음말놓은날</button>
+        <button class="macro-button" onclick="scrollToMessage(13936)">첫 사랑해</button>
+        <button class="macro-button" onclick="scrollToMessage(102614)">마지막으로</button>
+    </div>
     <!-- 채팅 박스 -->
     <div class="w-full max-w-md bg-white shadow-lg rounded-lg p-4 relative" id="chat-container">
         <!-- <div id="background-fade"></div> -->
@@ -244,94 +243,113 @@
         setInterval(changeBackgroundImage, changeInterval);
         
 
-        // 채팅 위치로 이동하는 함수
-        // 채팅 위치로 이동하는 함수
-        function scrollToMessage(targetIndex) {
-            if (targetIndex === -1) {
-                chatContainer.scrollTop = chatContainer.scrollHeight;
-                return;
-            }
-
-            function checkAndScroll() {
-                // 메시지 요소 중에서 정확한 index를 가진 요소를 찾음
-                const targetMessage = document.querySelector(`.message-index[data-index="${targetIndex}"]`);
-
-                if (targetMessage) {
-                    // 해당 메시지가 존재하면 스크롤 이동
-                    targetMessage.closest(".message-item").scrollIntoView({ behavior: "smooth", block: "start" });
-                } else {
-                    // 메시지가 아직 로드되지 않았다면 스크롤을 내려서 계속 불러옴
-                    chatContainer.scrollTop = chatContainer.scrollHeight;
-                    setTimeout(checkAndScroll, 10); // 0.5초 후 다시 확인
-                }
-            }
-
-            checkAndScroll();
-        }
-
-        // 로컬 파일에서 채팅 데이터 불러오기
+        // 텍스트 파일 불러오기
         async function loadChatData() {
             try {
-                const response = await fetch("text.txt"); // 로컬 파일에서 가져오기
+                const response = await fetch("text.txt");
                 const text = await response.text();
                 chatData = text.trim().split("\n");
-                renderNextBatch();
+                console.log(`✅ 채팅 데이터 로드 완료: ${chatData.length}줄`);
+                loadingIndicator.style.display = "none"; // 🔧 로딩 메시지 숨기기
+                renderMessagesAround(1); // 🔧 1번째 메시지부터 렌더링
+
+                // 🔥 메시지가 렌더링된 후 1번째 메시지로 스크롤 이동
+                setTimeout(() => {
+                    scrollToMessage(6);
+                }, 100);
             } catch (error) {
-                console.error("채팅 데이터를 불러오는 중 오류 발생:", error);
+                console.error("❌ 채팅 데이터를 불러오는 중 오류 발생:", error);
             }
         }
 
-        // 채팅 데이터 일부씩 렌더링
-        // 채팅 데이터 일부씩 렌더링
-        function renderNextBatch() {
-            const messagePattern = /\[(.*?)\] \[(.*?)\] (.*)/;
-            const datePattern = /-+ (.*?) -+/;
-
-            for (let i = 0; i < batchSize; i++) {
-                if (currentIndex >= chatData.length) {
-                    loadingIndicator.style.display = "none";
-                    return;
+        let loadedStart = 0;
+        let loadedEnd = 0;
+        
+        // 특정 위치 주변 메시지 렌더링 (초기 또는 특정 위치 이동 시)
+        function renderMessagesAround(targetIndex) {
+            messageContainer.innerHTML = ""; // 기존 메시지 삭제
+        
+            let start = Math.max(0, targetIndex - 300);
+            let end = Math.min(chatData.length, targetIndex + 100);
+        
+            loadedStart = start;
+            loadedEnd = end;
+        
+            console.log(`🔄 ${start}~${end}번째 메시지 렌더링`);
+        
+            for (let i = start; i < end; i++) {
+                renderSingleMessage(chatData[i], i);
+            }
+        
+            // 스크롤 이벤트 추가 (추가 로드 감지)
+            chatContainer.addEventListener("scroll", handleScroll);
+        
+            // 스크롤을 중앙에 맞춤
+            setTimeout(() => {
+                const targetMessage = document.querySelector(`.message-index[data-index="${targetIndex}"]`);
+                if (targetMessage) {
+                    targetMessage.closest(".message-item").scrollIntoView({ behavior: "instant", block: "center" });
                 }
-
-                const line = chatData[currentIndex++];
-                if (datePattern.test(line)) {
-                    const dateMatch = line.match(datePattern);
-                    if (dateMatch) {
-                        const dateElement = document.createElement("div");
-                        dateElement.className = "text-center text-gray-500 text-sm font-bold my-6";
-                        dateElement.textContent = dateMatch[1];
-                        messageContainer.appendChild(dateElement);
-                    }
-                } else {
-                    const match = line.match(messagePattern);
-                    if (!match) continue;
-
-                    const [, sender, time, text] = match;
-                    const isUser = sender === "최다훈";
-
-                    const messageElement = document.createElement("div");
-                    messageElement.className = `message-item flex ${isUser ? 'justify-start' : 'justify-end'} mb-4`;
-                    messageElement.innerHTML = `
+            }, 100);
+        }
+        
+        // 스크롤 감지 이벤트
+        function handleScroll() {
+            if (chatContainer.scrollTop + chatContainer.clientHeight >= chatContainer.scrollHeight - 10) {
+                // 🔥 스크롤이 맨 아래면 다음 1000개 로드
+                loadMoreMessages("down");
+            }
+        }
+        
+        function loadMoreMessages(direction) {
+            let newStart, newEnd;
+        
+            if (direction === "down") {
+                newStart = loadedEnd;  // 현재 로드된 마지막 인덱스부터
+                newEnd = Math.min(chatData.length, loadedEnd + 100); // 1000개 추가
+            } else {
+                return; // 위쪽 로드는 이번 코드에서 필요 없음
+            }
+        
+            if (newStart === loadedStart && newEnd === loadedEnd) return; // 중복 로드 방지
+        
+            console.log(`🔄 추가 로드: ${newStart}~${newEnd}`);
+        
+            for (let i = newStart; i < newEnd; i++) {
+                renderSingleMessage(chatData[i], i);
+            }
+        
+            loadedEnd = newEnd; // 마지막 인덱스 업데이트
+        }
+        
+        // 개별 메시지 렌더링
+        function renderSingleMessage(line, index) {
+            const messagePattern = /\[(.*?)\] \[(.*?)\] (.*)/;
+            const match = line.match(messagePattern);
+            if (!match) return;
+        
+            const [, sender, time, text] = match;
+            const isUser = sender === "최다훈";
+        
+            const messageElement = document.createElement("div");
+            messageElement.className = `message-item flex ${isUser ? 'justify-start' : 'justify-end'} mb-4`;
+            messageElement.innerHTML = `
                 <div class="max-w-xs p-3 rounded-lg chat-bubble ${isUser ? 'chat-user' : 'chat-other'} shadow-md">
-                    <p class="text-xs font-bold">${sender} • ${time} <span class="message-index" data-index="${currentIndex}">#${currentIndex}</span></p>
+                    <p class="text-xs font-bold">${sender} • ${time} <span class="message-index" data-index="${index}">#${index}</span></p>
                     <p class="mt-1">${text}</p>
                 </div>
             `;
-                    messageContainer.appendChild(messageElement);
-                    messageElements.push(messageElement); // 메시지 배열에 추가
-                }
-            }
+        
+            messageContainer.appendChild(messageElement);
         }
-
-        // 스크롤 이벤트 감지 -> 배경 변경
-        chatContainer.addEventListener("scroll", () => {
-            if (chatContainer.scrollTop + chatContainer.clientHeight >= chatContainer.scrollHeight - 50) {
-                renderNextBatch();
-                changeBackgroundImage(); // 채팅 박스 배경 이미지 변경 (부드러운 효과)
-            }
-        });
-
-        // 초기 데이터 로드
+        
+        // 특정 메시지로 이동
+        function scrollToMessage(targetIndex) {
+            if (chatData.length === 0) return;
+            renderMessagesAround(targetIndex);
+        }
+        
+        // 채팅 데이터 로드
         loadChatData();
     </script>
 
